@@ -21,6 +21,5 @@ function myFunction() {
 }
 
 window.onload = function () {
-    const link = document.getElementById('inviteLink');
-    link.value = window.location.protocol + '//' + window.location.host + window.location.pathname;
+    document.getElementById('inviteLink').value = window.location.protocol + '//' + window.location.host + window.location.pathname;
 }
