@@ -16,8 +16,8 @@
     {% else %}
         <label>You are guest</label>
     {% endif %}
+    <label id="inviteLabel" for="inviteLink">Ссылка для приглашения</label><input id="inviteLink" type="text">
     <input id="inviteCopy" onclick="myFunction()" type="button" value="копировать">
-    <input id="inviteLink" type="text">
 </div>
 
 <div class="mainContent">
@@ -35,18 +35,20 @@
             <br/>
             <br/>
         {% endif %}
-        <input type="button" onclick="sendVote(0)" value="0">
-        <input type="button" onclick="sendVote(1)" value="1">
-        <input type="button" onclick="sendVote(2)" value="2">
-        <input type="button" onclick="sendVote(3)" value="3">
-        <input type="button" onclick="sendVote(5)" value="5">
-        <input type="button" onclick="sendVote(8)" value="8">
-        <input type="button" onclick="sendVote(13)" value="13">
-        <input type="button" onclick="sendVote(21)" value="21">
-        <input type="button" onclick="sendVote(34)" value="34">
-        <input type="button" onclick="sendVote(55)" value="55">
-        <input type="button" onclick="sendVote(89)" value="89">
-        <input type="button" onclick="sendVote(-1)" value="∞">
+        <div id='choices'>
+            <input type="button" onclick="sendVote(0)" value="0">
+            <input type="button" onclick="sendVote(1)" value="1">
+            <input type="button" onclick="sendVote(2)" value="2">
+            <input type="button" onclick="sendVote(3)" value="3">
+            <input type="button" onclick="sendVote(5)" value="5">
+            <input type="button" onclick="sendVote(8)" value="8">
+            <input type="button" onclick="sendVote(13)" value="13">
+            <input type="button" onclick="sendVote(21)" value="21">
+            <input type="button" onclick="sendVote(34)" value="34">
+            <input type="button" onclick="sendVote(55)" value="55">
+            <input type="button" onclick="sendVote(89)" value="89">
+            <input type="button" onclick="sendVote(-1)" value="∞">
+        </div>
         <p>Участники:</p>
         <div id="votes"></div>
         <div id="statistics">

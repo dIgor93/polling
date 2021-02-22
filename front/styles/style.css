@@ -19,15 +19,15 @@ body {
 .subHeader {
     color: aliceblue;
     background: #262626;
-    font-size: 12pt;
+    font-size: 10pt;
     font-weight: bold;
     height: 28px;
     text-align: center;
     margin: 0;
-    padding-top: 5px;
+    padding-top: 9px;
 }
 
-.subHeader input {
+.subHeader input, #inviteLabel {
     float: left;
     height: 20px;
     border: 2px;

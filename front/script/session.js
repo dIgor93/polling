@@ -107,15 +107,16 @@ function handle_message(event) {
                 if (typeof value === 'number') {
                     if (i === value) {
                         td_empty.style.backgroundColor = '#5dbf57'
-                        td_empty.textContent = (value === -1) ? '∞' : value;
-
-                        summ += (value === -1) ? 0 : value;
-                        count++;
-                        if (dispers.hasOwnProperty(i)) {
-                            dispers[i]++;
+                        if (value === -1) {
+                            td_empty.textContent = '∞';
+                            summ += 0
+                            dispers['infinity'] = (dispers.hasOwnProperty('infinity')) ? dispers['infinity'] + 1: 1;
                         } else {
-                            dispers[i] = 1;
+                            td_empty.textContent = value;
+                            summ += value;
+                            dispers[i] = (dispers.hasOwnProperty(i)) ? dispers[i] + 1: 1;
                         }
+                        count++;
                     }
 
                 }
@@ -135,12 +136,16 @@ function handle_message(event) {
 
         if (count > 0) {
             document.getElementById('statistics').style.display = 'inherit'
+            document.getElementById('choices').style.visibility = 'hidden'
+        } else {
+            document.getElementById('statistics').style.display = 'none'
+            document.getElementById('choices').style.visibility = 'visible'
         }
-        document.getElementById('mid').innerText = summ / count;
+        document.getElementById('mid').innerText = `${Math.round((summ / count + Number.EPSILON) * 100) / 100}`
 
         let listHtml = '<ul>'
         for (let key in dispers) {
-            listHtml += `<li>${key}: \t${dispers[key] / count}%</li>`
+            listHtml += `<li>${key}: \t${Math.round((dispers[key] / count + Number.EPSILON) * 10000) / 100 }%</li>`
         }
         listHtml += '</ul>'
         document.getElementById('dispersion').innerHTML = listHtml;
