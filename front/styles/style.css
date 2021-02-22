@@ -1,0 +1,90 @@
+body {
+    margin: 0px;
+}
+
+.header {
+    color: aliceblue;
+    background: #7c7c7c;
+    height: 54px;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.headerText {
+    padding-top: 16px;
+    height: 30px;
+}
+
+.subHeader {
+    color: aliceblue;
+    background: #262626;
+    font-size: 12pt;
+    font-weight: bold;
+    height: 28px;
+    text-align: center;
+    margin: 0;
+    padding-top: 5px;
+}
+
+.subHeader input {
+    float: left;
+    height: 20px;
+    border: 2px;
+    margin-left: 5px;
+}
+
+.subHeader label {
+    display: block;
+    float: right;
+    padding-right: 10px;
+}
+
+.mainContent {
+    padding: 10px;
+}
+
+h1 {
+    text-align: center;
+}
+
+#inviteCopy {
+    height: 22px;
+}
+
+#inviteLink {
+    width: 40em;
+}
+
+#startPolling {
+    margin: auto;
+    display: block;
+}
+
+#polling {
+    display: none;
+}
+
+#nameError {
+    color: red;
+    visibility: hidden
+}
+
+#statistics {
+    display: none;
+}
+
+tr {
+    height: 27px;
+}
+
+td {
+    padding: 0;
+    width: 60px;
+    height: 27px;
+    text-align: center;
+}
+
+.firstColumn {
+    width: auto;
+}

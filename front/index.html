@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Голосовалка</title>
+    <link href="{{ url_for('static', path='/styles/style.css') }}" rel="stylesheet">
+</head>
+<body>
+<div class="header">
+    <div class="headerText">Голосовалка</div>
+</div>
+<div class="subHeader">
+</div>
+<div class="mainContent">
+    <h1>Welcome to poolling!</h1>
+    <input type="button" value="Start polling" id="startPolling" onclick="createSession()"/>
+
+</div>
+<script src="{{ url_for('static', path='/script/main.js') }}"></script>
+</body>
+</html>
