@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.responses import RedirectResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from controller import SessionManager
@@ -85,6 +86,11 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({'error': e})
             await websocket.close()
             break
+
+
+@app.get("/favicon.ico")
+async def favicon(request: Request):
+    return RedirectResponse("/static/favicon.ico")
 
 
 if __name__ == "__main__":

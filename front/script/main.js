@@ -14,12 +14,3 @@ function createSession() {
         .then(resp => { window.location.href = '/session/' + resp['sessionId'] + '?isMaster=true'})
         .catch(error => alert(`Произошла ошибка: ${error}`));
 }
-
-function myFunction() {
-    document.getElementById("inviteLink").select();
-    document.execCommand("copy");
-}
-
-window.onload = function () {
-    document.getElementById('inviteLink').value = window.location.protocol + '//' + window.location.host + window.location.pathname;
-}

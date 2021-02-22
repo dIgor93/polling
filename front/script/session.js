@@ -147,3 +147,12 @@ function handle_message(event) {
 
     }
 }
+
+window.onload = function () {
+    document.getElementById('inviteLink').value = window.location.protocol + '//' + window.location.host + window.location.pathname;
+}
+
+function myFunction() {
+    document.getElementById("inviteLink").select();
+    document.execCommand("copy");
+}
