@@ -1,7 +1,10 @@
 let socket = null;
 
 function connect() {
-    socket = new WebSocket(`ws://${window.location.host}/ws`)
+    if (window.location.protocol === 'http:')
+        socket = new WebSocket(`ws://${window.location.host}/ws`)
+    else
+        socket = new WebSocket(`wss://${window.location.host}/ws`)
     socket.addEventListener('message', event => handle_message(event));
     socket.addEventListener('open', event => sendName('', document.getElementById('fieldName').value));
 }
