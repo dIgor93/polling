@@ -5,7 +5,7 @@
 Сервис доступен по адресу
 https://digors-polling.herokuapp.com
 
-####Запуск приложения локально:
+###Запуск приложения локально:
 ```shell
 uvicorn main:app --reload
 ```
