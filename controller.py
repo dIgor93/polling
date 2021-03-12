@@ -1,7 +1,10 @@
 import uuid
+from functools import reduce
 from typing import Tuple
 
 from exceptions import NameAlreadyExists
+
+VOTE_VARIANTS = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
 
 
 class Session:
@@ -10,6 +13,8 @@ class Session:
         self._votes = {}
         self._hidden = True
         self._sockets = []
+        self._mean = 0
+        self._dispersion = {}
 
     def add_voter(self, socket) -> None:
         self._sockets.append(socket)
@@ -22,7 +27,7 @@ class Session:
 
     def set_vote(self, vote, name) -> None:
         if self._hidden is True:
-            self._votes[name] = vote
+            self._votes[name] = int(vote)
 
     def show_results(self, master_key) -> None:
         if self._master_key == master_key:
@@ -48,13 +53,32 @@ class Session:
         res = {'error': None, 'data': ''}
         if self._hidden:
             res['data'] = {key: (value is not None) for key, value in self._votes.items()}
+            res['result'] = None
         else:
+            self.calculate_statistics()
             res['data'] = self._votes
+            res['result'] = {
+                'dispersion': self._dispersion,
+                'mean': self._mean
+            }
         return res
 
     async def notify_all(self, data) -> None:
         for socket in self._sockets:
             await socket.send_json(data)
+
+    def calculate_statistics(self):
+        count = len(self._votes.keys())
+        self._dispersion = {}
+        self._mean = reduce(lambda x, y: x + y, self._votes.values()) / count
+
+        counters = {x: 0 for x in VOTE_VARIANTS}
+        for value in self._votes.values():
+            counters[value] += 1
+
+        for key, value in counters.items():
+            if value != 0:
+                self._dispersion[key] = round(value / count * 100, 1)
 
 
 class SessionManager:

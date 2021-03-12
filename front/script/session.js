@@ -1,4 +1,5 @@
 let socket = null;
+const VOTE_VARIANTS = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
 
 function connect() {
     if (window.location.protocol === 'http:')
@@ -64,100 +65,96 @@ function sendName(oldName, newName) {
 
 
 function handle_message(event) {
-    const values = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
-    let summ = 0;
-    let count = 0;
-    let dispers = {}
-    let data_json = JSON.parse(event.data);
-    console.log(data_json)
+    let data = JSON.parse(event.data);
 
-    if ((data_json['error'] !== null) && (data_json['error'])) {
-        console.log(data_json['error'])
+    if (data['error']) {
+        console.log(data['error'])
         document.getElementById('nameError').style.visibility = 'visible'
-    } else {
-        let data = data_json['data'];
-        let votesDiv = document.getElementById('votes');
-        let tab = document.createElement('table')
+        return;
+    }
 
-        let tr = document.createElement('tr');
-
-        let th = document.createElement('th')
-        th.className = 'firstColumn'
-        tr.appendChild(th)
-
-        values.forEach((i) => {
-            let th = document.createElement('th');
-            th.textContent = (i === -1) ? '∞' : i;
-            th.className = 'rows'
-            tr.appendChild(th)
-        })
-        tab.appendChild(tr)
-
-        for (let elem in data) {
-            let tr = document.createElement('tr');
-            let td = document.createElement('td');
-            const value = data[elem]
-            td.className = 'firstColumn'
-            td.textContent = elem
-            td.style.backgroundColor = ((value === null) || (value === false)) ? '#fd6363' : '#5dbf57'
-            tr.appendChild(td)
-
-            values.forEach((i) => {
-                let td_empty = document.createElement('td');
-                if (typeof value === 'number') {
-                    if (i === value) {
-                        td_empty.style.backgroundColor = '#5dbf57'
-                        if (value === -1) {
-                            td_empty.textContent = '∞';
-                            summ += 0
-                            dispers['infinity'] = (dispers.hasOwnProperty('infinity')) ? dispers['infinity'] + 1: 1;
-                        } else {
-                            td_empty.textContent = value;
-                            summ += value;
-                            dispers[i] = (dispers.hasOwnProperty(i)) ? dispers[i] + 1: 1;
-                        }
-                        count++;
-                    }
-
-                }
-                tr.appendChild(td_empty)
-            })
-
-            if ((value === null) || (value === false)) {
-                item = `<p style="color: #fd6363">${elem}</p>`
+    if (data['result']) {
+        showStatistics(data['result']);
+        for (let elem in data['data']) {
+            if (data['data'].hasOwnProperty(elem)) {
+                animateVotes(elem, data['data'][elem])
             }
-            tab.appendChild(tr)
         }
-        votesDiv.innerHTML = '';
-        votesDiv.appendChild(tab)
-        document.getElementById('authority').style.display = 'none'
-        document.getElementById('polling').style.display = 'inherit'
-        document.getElementById('nameError').style.display = 'none'
+        return;
+    }
 
-        if (count > 0) {
-            document.getElementById('statistics').style.display = 'inherit'
-            document.getElementById('choices').style.visibility = 'hidden'
-        } else {
-            document.getElementById('statistics').style.display = 'none'
-            document.getElementById('choices').style.visibility = 'visible'
-        }
-        document.getElementById('mid').innerText = `${Math.round((summ / count + Number.EPSILON) * 100) / 100}`
+    renderMemberCount(data['data']);
+    renderMembers(data['data']);
+    showPooling();
+}
 
-        let listHtml = '<ul>'
-        for (let key in dispers) {
-            listHtml += `<li>${key}: \t${Math.round((dispers[key] / count + Number.EPSILON) * 10000) / 100 }%</li>`
-        }
-        listHtml += '</ul>'
-        document.getElementById('dispersion').innerHTML = listHtml;
+function renderMemberCount(data) {
+    document.getElementById('membersNumber').textContent = (Object.keys(data).length).toString();
+}
 
+function renderMembers(data) {
+    let members = document.getElementById('members');
+    members.innerText = ''
+    for (let elem in data) {
+        let nameRect = document.createElement('div');
+        nameRect.className = 'nameRect'
+        nameRect.textContent = elem;
+        nameRect.style.backgroundColor = data[elem] ? '#5dbf57' : '#d93535'
+        nameRect.id = elem.toString();
+        members.appendChild(nameRect);
     }
 }
 
-window.onload = function () {
-    document.getElementById('inviteLink').value = window.location.protocol + '//' + window.location.host + window.location.pathname;
+function animateVotes(user_name, user_vote) {
+    let counter = 0;
+    let nameRect = document.getElementById(user_name);
+    const width = document.getElementsByClassName('voteVariant')[0].offsetWidth;
+    let target = (VOTE_VARIANTS.indexOf(user_vote) + 0.5) * width + 100
+
+    let timer = setInterval(function () {
+        counter += 3
+        nameRect.style.marginLeft = counter + "px";
+        if (counter > target) {
+            clearInterval(timer)
+        }
+    }, 1, target)
 }
 
-function myFunction() {
-    document.getElementById("inviteLink").select();
-    document.execCommand("copy");
+function showPooling() {
+    document.getElementById('statistics').style.display = 'none'
+    document.getElementById('authority').style.display = 'none'
+    document.getElementById('polling').style.display = 'inherit'
+    document.getElementById('nameError').style.display = 'none'
 }
+
+function showStatistics(data) {
+    document.getElementById('statistics').style.display = 'inherit'
+
+    let listHtml = document.createElement('ul')
+    for (let key in data['dispersion']) {
+        let li = document.createElement('li')
+        if (key == -1) {
+            li.textContent = `∞: \t${data['dispersion'][key]}%`
+        } else {
+            li.textContent = `${key}: \t${data['dispersion'][key]}%`
+        }
+        listHtml.appendChild(li)
+    }
+
+    $('#mean').innerText.innerText = data['mean']
+    document.getElementById('dispersion').replaceChild(
+        listHtml,
+        document.getElementById('dispersion').lastChild
+    )
+}
+
+$(document).on('click', '.voteVariant', function () {
+    $('.voteVariant').removeClass('selectedVariant')
+    $(this).addClass('selectedVariant');
+
+    let selected = $(this).html();
+    if (selected === '∞') {
+        selected = -1
+    }
+    sendVote(selected)
+});

@@ -1,5 +1,6 @@
 body {
     margin: 0px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .header {
@@ -73,18 +74,42 @@ h1 {
 #statistics {
     display: none;
 }
-
-tr {
-    height: 27px;
+#votes {
+    display: grid;
 }
 
-td {
+#votesBar {
+    display: table;
+    margin-left: 200px;
+    margin-right: 30px;
+}
+.voteVariant {
     padding: 0;
-    width: 60px;
+    width: 130px;
     height: 27px;
     text-align: center;
+    border-style: solid;
+    border-color: #ffffff;
+    border-width: 3px;
+    display: table-cell;
+    vertical-align: middle;
 }
 
-.firstColumn {
-    width: auto;
+.voteVariant:hover {
+    border-color: #5dbf57;
+    cursor: pointer;
+}
+
+.selectedVariant {
+    background: #5dbf57;
+    color: white;
+}
+
+.nameRect {
+    width: 200px;
+    height: 27px;
+    background: #d93535;
+    margin-top: 3px;
+    padding-top: 7px;
+    text-align: center;
 }
