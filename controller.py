@@ -2,7 +2,7 @@ import uuid
 from functools import reduce
 from typing import Tuple
 
-from exceptions import NameAlreadyExists
+from exceptions import NameAlreadyExists, NameIsEmpty
 
 VOTE_VARIANTS = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
 
@@ -38,6 +38,8 @@ class Session:
                 self._votes[i]['vote'] = None
 
     def set_name(self, uid, new_name) -> None:
+        if new_name == '':
+            raise NameIsEmpty
         if new_name in self.names:
             raise NameAlreadyExists
         else:
@@ -78,15 +80,18 @@ class Session:
     def calculate_statistics(self):
         count = len(self.votes)
         self._dispersion = {}
-        self._mean = reduce(lambda x, y: x + y, self.votes) / count
+        if count == 0:
+            self._mean = 0
+        else:
+            self._mean = round(reduce(lambda x, y: x + y, self.votes) / count, 2)
 
-        counters = {x: 0 for x in VOTE_VARIANTS}
-        for value in self.votes:
-            counters[value] += 1
+            counters = {x: 0 for x in VOTE_VARIANTS}
+            for value in self.votes:
+                counters[value] += 1
 
-        for key, value in counters.items():
-            if value != 0:
-                self._dispersion[key] = round(value / count * 100, 1)
+            for key, value in counters.items():
+                if value != 0:
+                    self._dispersion[key] = round(value / count * 100, 1)
 
     @property
     def names(self):

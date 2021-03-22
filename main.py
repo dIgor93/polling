@@ -6,7 +6,7 @@ from starlette.responses import RedirectResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from controller import SessionManager
-from exceptions import NameAlreadyExists
+from exceptions import CustomException
 
 app = FastAPI()
 app.state.session_manager = SessionManager()
@@ -74,7 +74,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                 await session.notify_all(session.get_state())
                 break
 
-            except NameAlreadyExists as e:
+            except CustomException as e:
                 session.remove_voter(user_uid)
                 await websocket.send_json({'error': e.json()})
                 await websocket.close()
