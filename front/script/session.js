@@ -1,18 +1,18 @@
 
 const VOTE_VARIANTS = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
-let already_animated = false
+let already_animated = true
 let pooling_inited = false
+let socket = null
 
 function connect() {
-    let socket;
     if (window.location.protocol === 'http:')
         socket = new WebSocket(`ws://${window.location.host}/ws/${getCookie('sessionId')}`)
     else
         socket = new WebSocket(`wss://${window.location.host}/ws/${getCookie('sessionId')}`)
     socket.addEventListener('message', event => handle_message(event));
-    return socket;
+    socket.addEventListener('open', event => sendName(document.getElementById('fieldName').value))
 }
-const socket = connect()
+
 
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
@@ -70,18 +70,19 @@ function sendName(newName) {
 function handle_message(event) {
     let data = JSON.parse(event.data);
 
+    if (data['error']) {
+        console.log(data['error'])
+        $('#nameError').text(data['error']['message'])
+        $("#nameError").show()
+        return;
+    }
+
     renderMemberCount(data['data']);
     renderMembers(data['data']);
 
     if (!pooling_inited) {
         showPooling();
         pooling_inited = true;
-    }
-
-    if (data['error']) {
-        console.log(data['error'])
-        $("#nameError").show()
-        return;
     }
 
     if (data['result']) {
@@ -91,17 +92,28 @@ function handle_message(event) {
         already_animated = true
         $('.voteVariant').removeClass('selectedVariant')
     } else {
-        activateButtons()
+        if (already_animated) activateButtons()
         already_animated = false
     }
 }
 
 function inactivateButtons() {
     $('.voteVariant').addClass('unselectableVariant')
+    $('.selectedVariant').addClass('unselectableVariant')
+
+    $('.voteVariant').addClass('selectedVariant')
+    $('.voteVariant').removeClass('voteVariant')
+
+    // $('.voteVariant').off('click', voteClick)
+    $('.selectedVariant').off('click', voteClick)
 }
 
 function activateButtons() {
     $('.voteVariant').removeClass('unselectableVariant')
+    $('.selectedVariant').removeClass('unselectableVariant')
+    $('.selectedVariant').addClass('voteVariant')
+    $('.selectedVariant').removeClass('selectedVariant')
+    $('.voteVariant').on('click', voteClick)
 }
 
 function renderMemberCount(data) {
@@ -120,7 +132,7 @@ function renderMembers(data) {
         if (typeof elem['voted'] == 'number' || elem['voted'] === true) {
             nameRect.style.backgroundColor = '#5dbf57'
         } else {
-            nameRect.style.backgroundColor = '#cd4a4a'
+            nameRect.style.backgroundColor = 'rgb(255, 122, 122)'
         }
         members.append(nameRect);
     })
@@ -130,7 +142,7 @@ function animateVotes(elem, animated) {
     if (typeof elem['voted'] === 'number') {
         let counter = 0;
         let nameRect = $("#" + elem['uid']);
-        const width = $(".voteVariant")[0].offsetWidth;
+        const width = $(".selectedVariant")[0].offsetWidth;
         let target = (VOTE_VARIANTS.indexOf(elem['voted'])) * width + 0.5 * width + 70
         if (!animated) {
             let timer = setInterval(function () {
@@ -173,13 +185,16 @@ function showStatistics(data) {
     $("#dispersion").replaceWith(labelDispersion)
 }
 
-$(document).on('click', '.voteVariant', function () {
-    $('.voteVariant').removeClass('selectedVariant')
+function voteClick() {
+    $('.selectedVariant').addClass('voteVariant')
+    $('.selectedVariant').removeClass('selectedVariant')
+
     $(this).addClass('selectedVariant');
+    $('.selectedVariant').removeClass('voteVariant')
 
     let selected = $(this).html();
     if (selected === '∞') {
         selected = -1
     }
     sendVote(selected)
-});
+};
