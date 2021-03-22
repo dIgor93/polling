@@ -6,8 +6,7 @@
     <link href="{{ url_for('static', path='/styles/style.css') }}" rel="stylesheet">
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-<!--    <script src="{{ url_for('static', path='/script/jquery.min.js') }}" ></script>-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', path='/script/jquery.min.js') }}" ></script>
 </head>
 <body>
 <div class="header">
@@ -27,8 +26,8 @@
 <div class="mainContent">
     <div id="authority">
         <p>Введите имя</p>
-        <input id="fieldName" maxlength="20" type="text">
-        <input onclick="connect()" type="button" value="Сохранить">
+        <input id="fieldName" type="text">
+        <input onclick="sendName(document.getElementById('fieldName').value)" type="button" value="Сохранить">
         <p id="nameError">Указанное имя уже используется</p>
     </div>
     <br/>
@@ -36,7 +35,6 @@
         {% if isMaster == true %}
         <input onclick="showResults()" type="button" value="Показать результаты">
         <input onclick="resetResults()" type="button" value="Сброс">
-        <br/>
         <br/>
         {% endif %}
         <br/>
@@ -59,9 +57,8 @@
             </div>
             <div id="members"></div>
         </div>
-
+        <hr>
         <div id="statistics">
-            <hr>
             <p><b>Среднее арифметичекое: </b><label id="mean"></label></p>
             <p><b>Распределение: </b></p>
             <label id="dispersion"><stub></stub></label>

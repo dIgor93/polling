@@ -15,6 +15,11 @@ app.mount("/static", StaticFiles(directory="front"), name="static")
 templates = Jinja2Templates(directory="front")
 
 
+@app.get("/favicon.ico")
+async def favicon(request: Request):
+    return RedirectResponse("/static/favicon.ico")
+
+
 @app.get("/")
 async def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -36,61 +41,50 @@ async def poll_page(request: Request, id: str, isMaster: bool = False):
     return template_response
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await websocket.accept()
-    name = 'noname'
-    session = None
+    session = app.state.session_manager.get_session(session_id)
 
-    while True:
-        try:
-            data = await websocket.receive_json()
-            operation = data.get('operation')
-            session = app.state.session_manager.get_session(data.get('session_id'))
+    if session:
+        user_uid = session.add_voter(websocket)
 
-            if operation == 'voting':
-                vote = data.get('vote')
-                session.set_vote(vote, name)
+        while True:
+            try:
+                data = await websocket.receive_json()
+                operation = data.get('operation')
 
-            elif operation == 'show_results':
-                master_key = data.get('master_key')
-                session.show_results(master_key)
+                if operation == 'voting':
+                    session.set_vote(user_uid, data.get('vote'))
 
-            elif operation == 'reset_results':
-                master_key = data.get('master_key')
-                session.reset_results(master_key)
+                elif operation == 'show_results':
+                    session.show_results(data.get('master_key'))
 
-            elif operation == 'set_name':
-                new_name = data.get('new_name')
-                old_name = data.get('old_name')
-                session.set_name(old_name, new_name)
-                session.add_voter(websocket)
-                name = new_name
+                elif operation == 'reset_results':
+                    session.reset_results(data.get('master_key'))
 
-            await session.notify_all(session.get_state())
+                elif operation == 'set_name':
+                    session.set_name(user_uid, data.get('name'))
 
-        except WebSocketDisconnect as e:
-            print(f'WebSocketDisconnect: {e}')
-            session.remove_voter(websocket, name)
-            await session.notify_all(session.get_state())
-            break
+                await session.notify_all(session.get_state())
 
-        except NameAlreadyExists as e:
-            session.remove_voter(websocket, name)
-            await websocket.send_json({'error': e.json()})
-            await websocket.close()
-            break
+            except WebSocketDisconnect as e:
+                print(f'WebSocketDisconnect: {e}')
+                session.remove_voter(user_uid)
+                await session.notify_all(session.get_state())
+                break
 
-        except Exception as e:
-            session.remove_voter(websocket, name)
-            await websocket.send_json({'error': e})
-            await websocket.close()
-            break
+            except NameAlreadyExists as e:
+                session.remove_voter(user_uid)
+                await websocket.send_json({'error': e.json()})
+                await websocket.close()
+                break
 
-
-@app.get("/favicon.ico")
-async def favicon(request: Request):
-    return RedirectResponse("/static/favicon.ico")
+            except Exception as e:
+                session.remove_voter(user_uid)
+                await websocket.send_json({'error': e})
+                await websocket.close()
+                break
 
 
 if __name__ == "__main__":

@@ -68,7 +68,7 @@ h1 {
 
 #nameError {
     color: red;
-    visibility: hidden
+    display: none;
 }
 
 #statistics {
@@ -80,8 +80,8 @@ h1 {
 
 #votesBar {
     display: table;
-    margin-left: 200px;
-    margin-right: 30px;
+    margin-left: 140px;
+    margin-right: 0px;
 }
 .voteVariant {
     padding: 0;
@@ -105,11 +105,27 @@ h1 {
     color: white;
 }
 
+.unselectableVariant {
+    !important;
+    background: #bec8b5;
+    color: white;
+}
+
+.unselectableVariant:hover {
+    !important;
+    background: #bec8b5;
+    border-color: white;
+    cursor: initial;
+}
+
 .nameRect {
-    width: 200px;
-    height: 27px;
+    width: 130px;
     background: #d93535;
     margin-top: 3px;
-    padding-top: 7px;
     text-align: center;
+    word-wrap: break-word;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 4px;
+    padding-right: 4px;
 }

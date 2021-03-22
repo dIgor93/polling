@@ -1,14 +1,18 @@
-let socket = null;
+
 const VOTE_VARIANTS = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -1]
+let already_animated = false
+let pooling_inited = false
 
 function connect() {
+    let socket;
     if (window.location.protocol === 'http:')
-        socket = new WebSocket(`ws://${window.location.host}/ws`)
+        socket = new WebSocket(`ws://${window.location.host}/ws/${getCookie('sessionId')}`)
     else
-        socket = new WebSocket(`wss://${window.location.host}/ws`)
+        socket = new WebSocket(`wss://${window.location.host}/ws/${getCookie('sessionId')}`)
     socket.addEventListener('message', event => handle_message(event));
-    socket.addEventListener('open', event => sendName('', document.getElementById('fieldName').value));
+    return socket;
 }
+const socket = connect()
 
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
@@ -51,13 +55,12 @@ function resetResults() {
         ));
 }
 
-function sendName(oldName, newName) {
+function sendName(newName) {
     socket.send(
         JSON.stringify(
             {
                 'operation': 'set_name',
-                'new_name': newName,
-                'old_name': oldName,
+                'name': newName,
                 'session_id': getCookie('sessionId')
             }
         ));
@@ -67,85 +70,102 @@ function sendName(oldName, newName) {
 function handle_message(event) {
     let data = JSON.parse(event.data);
 
+    renderMemberCount(data['data']);
+    renderMembers(data['data']);
+
+    if (!pooling_inited) {
+        showPooling();
+        pooling_inited = true;
+    }
+
     if (data['error']) {
         console.log(data['error'])
-        document.getElementById('nameError').style.visibility = 'visible'
+        $("#nameError").show()
         return;
     }
 
     if (data['result']) {
+        inactivateButtons()
         showStatistics(data['result']);
-        for (let elem in data['data']) {
-            if (data['data'].hasOwnProperty(elem)) {
-                animateVotes(elem, data['data'][elem])
-            }
-        }
-        return;
+        data['data'].forEach((elem) => animateVotes(elem, already_animated))
+        already_animated = true
+        $('.voteVariant').removeClass('selectedVariant')
+    } else {
+        activateButtons()
+        already_animated = false
     }
+}
 
-    renderMemberCount(data['data']);
-    renderMembers(data['data']);
-    showPooling();
+function inactivateButtons() {
+    $('.voteVariant').addClass('unselectableVariant')
+}
+
+function activateButtons() {
+    $('.voteVariant').removeClass('unselectableVariant')
 }
 
 function renderMemberCount(data) {
-    document.getElementById('membersNumber').textContent = (Object.keys(data).length).toString();
+    $("#membersNumber").text(data.length);
 }
 
 function renderMembers(data) {
-    let members = document.getElementById('members');
-    members.innerText = ''
-    for (let elem in data) {
+    let members = $("#members");
+    members.text('')
+    data.forEach((elem) => {
         let nameRect = document.createElement('div');
         nameRect.className = 'nameRect'
-        nameRect.textContent = elem;
-        nameRect.style.backgroundColor = data[elem] ? '#5dbf57' : '#d93535'
-        nameRect.id = elem.toString();
-        members.appendChild(nameRect);
+        nameRect.textContent = elem.name;
+        nameRect.style.backgroundColor = elem['voted'] ? '#5dbf57' : '#d93535'
+        nameRect.id = elem.uid;
+        members.append(nameRect);
+    })
+}
+
+function animateVotes(elem, animated) {
+    if (typeof elem['voted'] === 'number') {
+        let counter = 0;
+        let nameRect = $("#" + elem['uid']);
+        const width = $(".voteVariant")[0].offsetWidth;
+        let target = (VOTE_VARIANTS.indexOf(elem['voted'])) * width + 0.5 * width + 70
+        if (!animated) {
+            let timer = setInterval(function () {
+                counter += 3
+                nameRect.css({'margin-left': counter + "px"});
+                if (counter > target) {
+                    clearInterval(timer)
+                }
+            }, 1, target)
+        }
+        nameRect.css({'margin-left': target + "px"});
     }
 }
 
-function animateVotes(user_name, user_vote) {
-    let counter = 0;
-    let nameRect = document.getElementById(user_name);
-    const width = document.getElementsByClassName('voteVariant')[0].offsetWidth;
-    let target = (VOTE_VARIANTS.indexOf(user_vote) + 0.5) * width + 100
-
-    let timer = setInterval(function () {
-        counter += 3
-        nameRect.style.marginLeft = counter + "px";
-        if (counter > target) {
-            clearInterval(timer)
-        }
-    }, 1, target)
-}
-
 function showPooling() {
-    document.getElementById('statistics').style.display = 'none'
-    document.getElementById('authority').style.display = 'none'
-    document.getElementById('polling').style.display = 'inherit'
-    document.getElementById('nameError').style.display = 'none'
+    $("#statistics").hide()
+    $("#authority").remove()
+    $("#polling").show()
+    $("#nameError").hide()
 }
 
 function showStatistics(data) {
-    document.getElementById('statistics').style.display = 'inherit'
+    $("#statistics").show()
 
+    let labelDispersion = document.createElement('label')
+    labelDispersion.setAttribute("id", "dispersion");
     let listHtml = document.createElement('ul')
     for (let key in data['dispersion']) {
         let li = document.createElement('li')
-        if (key == -1) {
+        if (key === '-1') {
             li.textContent = `∞: \t${data['dispersion'][key]}%`
         } else {
             li.textContent = `${key}: \t${data['dispersion'][key]}%`
         }
         listHtml.appendChild(li)
     }
+    labelDispersion.appendChild(listHtml)
 
-    $('#mean').innerText.innerText = data['mean']
-    document.getElementById('dispersion').replaceChild(
-        listHtml,
-        document.getElementById('dispersion').lastChild
-    )
+    $("#mean").text(data['mean'])
+    $("#dispersion").replaceWith(labelDispersion)
 }
 
 $(document).on('click', '.voteVariant', function () {
