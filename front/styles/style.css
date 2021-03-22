@@ -120,9 +120,9 @@ h1 {
 
 .nameRect {
     width: 130px;
-    background: #d93535;
     margin-top: 3px;
     text-align: center;
+    font-size: 12px;
     word-wrap: break-word;
     padding-top: 7px;
     padding-bottom: 7px;

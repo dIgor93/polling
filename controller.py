@@ -98,7 +98,7 @@ class Session:
 
     @property
     def votes(self):
-        return [x.get('vote') for x in self._votes.values() if x.get('vote')]
+        return [x.get('vote') for x in self._votes.values() if x.get('vote') is not None]
 
 
 class SessionManager:

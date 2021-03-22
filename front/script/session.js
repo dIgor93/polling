@@ -115,8 +115,13 @@ function renderMembers(data) {
         let nameRect = document.createElement('div');
         nameRect.className = 'nameRect'
         nameRect.textContent = elem.name;
-        nameRect.style.backgroundColor = elem['voted'] ? '#5dbf57' : '#d93535'
         nameRect.id = elem.uid;
+
+        if (typeof elem['voted'] == 'number' || elem['voted'] === true) {
+            nameRect.style.backgroundColor = '#5dbf57'
+        } else {
+            nameRect.style.backgroundColor = '#cd4a4a'
+        }
         members.append(nameRect);
     })
 }
