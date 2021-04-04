@@ -38,6 +38,7 @@ class Session:
                 self._votes[i]['vote'] = None
 
     def set_name(self, uid, new_name) -> None:
+        new_name = new_name.strip()
         if new_name == '':
             raise NameIsEmpty
         if new_name in self.names:
