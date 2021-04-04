@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Голосовалка</title>
     <link href="{{ url_for('static', path='/styles/style.css') }}" rel="stylesheet">
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', path='/script/jquery.min.js') }}" ></script>
 </head>
 <body>
 <div class="header">
@@ -12,55 +15,59 @@
 
 <div class="subHeader">
     {% if isMaster == true %}
-        <label>You are master</label>
+    <label>Ты ведущий</label>
     {% else %}
-        <label>You are guest</label>
+    <label>Ты гость</label>
     {% endif %}
-    <label id="inviteLabel" for="inviteLink">Ссылка для приглашения</label><input id="inviteLink" type="text">
-    <input id="inviteCopy" onclick="myFunction()" type="button" value="копировать">
+    <label for="inviteLink" id="inviteLabel">Ссылка для приглашения</label><input id="inviteLink" type="text">
+    <input id="inviteCopy" type="button" value="копировать">
 </div>
 
 <div class="mainContent">
     <div id="authority">
         <p>Введите имя</p>
         <input id="fieldName" type="text">
-        <input type="button" value="Сохранить" onclick="connect()">
-        <p id="nameError">Указанное имя уже используется</p>
+        <input onclick="connect()" type="button" value="Сохранить">
+        <p id="nameError"></p>
     </div>
     <br/>
     <div id="polling">
         {% if isMaster == true %}
-            <input type="button" onclick="showResults()" value="SHOW">
-            <input type="button" onclick="resetResults()" value="RESET">
-            <br/>
-            <br/>
+        <input onclick="showResults()" type="button" value="Показать результаты">
+        <input onclick="resetResults()" type="button" value="Сброс">
+        <br/>
         {% endif %}
-        <div id='choices'>
-            <input type="button" onclick="sendVote(0)" value="0">
-            <input type="button" onclick="sendVote(1)" value="1">
-            <input type="button" onclick="sendVote(2)" value="2">
-            <input type="button" onclick="sendVote(3)" value="3">
-            <input type="button" onclick="sendVote(5)" value="5">
-            <input type="button" onclick="sendVote(8)" value="8">
-            <input type="button" onclick="sendVote(13)" value="13">
-            <input type="button" onclick="sendVote(21)" value="21">
-            <input type="button" onclick="sendVote(34)" value="34">
-            <input type="button" onclick="sendVote(55)" value="55">
-            <input type="button" onclick="sendVote(89)" value="89">
-            <input type="button" onclick="sendVote(-1)" value="∞">
-        </div>
-        <p>Участники:</p>
-        <div id="votes"></div>
-        <div id="statistics">
-            <hr>
-            <p><b>Среднее арифметичекое: </b><label id="mid"></label></p>
-            <p><b>Распределение: </b></p>
-            <label id="dispersion"></label>
+        <br/>
+        <p>Участников: <b><label id="membersNumber"></label></b></p>
+        <hr>
+        <div id="votes">
+            <div id="votesBar">
+                <div class="voteVariant">0</div>
+                <div class="voteVariant">1</div>
+                <div class="voteVariant">2</div>
+                <div class="voteVariant">3</div>
+                <div class="voteVariant">5</div>
+                <div class="voteVariant">8</div>
+                <div class="voteVariant">13</div>
+                <div class="voteVariant">21</div>
+                <div class="voteVariant">34</div>
+                <div class="voteVariant">55</div>
+                <div class="voteVariant">89</div>
+                <div class="voteVariant">∞</div>
             </div>
+            <div id="members"></div>
+        </div>
+        <hr>
+        <div id="statistics">
+            <p><b>Среднее арифметичекое: </b><label id="mean"></label></p>
+            <p><b>Распределение: </b></p>
+            <label id="dispersion"><stub></stub></label>
+        </div>
     </div>
 
 </div>
 <script src="{{ url_for('static', path='/script/session.js') }}"></script>
 <script src="{{ url_for('static', path='/script/main.js') }}"></script>
+<script src="{{ url_for('static', path='/script/system.js') }}"></script>
 </body>
 </html>

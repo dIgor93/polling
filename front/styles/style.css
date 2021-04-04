@@ -1,5 +1,6 @@
 body {
     margin: 0px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .header {
@@ -67,24 +68,77 @@ h1 {
 
 #nameError {
     color: red;
-    visibility: hidden
+    display: none;
 }
 
 #statistics {
     display: none;
 }
-
-tr {
-    height: 27px;
+#votes {
+    display: grid;
 }
 
-td {
+#votesBar {
+    display: table;
+    margin-left: 140px;
+    margin-right: 0px;
+}
+
+.voteVariant {
     padding: 0;
-    width: 60px;
+    width: 130px;
     height: 27px;
     text-align: center;
+    border-style: solid;
+    border-color: #c3c3c3;
+    border-width: 1px;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 1px;
 }
 
-.firstColumn {
-    width: auto;
+.selectedVariant {
+    width: 130px;
+    height: 27px;
+    text-align: center;
+    border-style: solid;
+    border-color: #c3c3c3;
+    border-width: 1px;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 1px;
+    background: #5dbf57;
+    color: white;
+}
+
+.voteVariant:hover {
+    background: #b5f6b3;
+    color: #3b3b3b;
+    cursor: pointer;
+}
+
+.unselectableVariant {
+    !important;
+    background: #bec8b5;
+    color: white;
+    border-color: #fdfdfd;
+}
+
+.unselectableVariant:hover {
+    !important;
+    background: #bec8b5;
+    border-color: white;
+    cursor: initial;
+}
+
+.nameRect {
+    width: 130px;
+    margin-top: 3px;
+    text-align: center;
+    font-size: 14px;
+    word-wrap: break-word;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
